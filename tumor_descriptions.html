@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerebrova - Brain Tumour Descriptions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a0505 0%, #3a0a0a 100%);
+            color: #f5eaea;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Animated neural network background */
+        .neural-network {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .node {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, #d64545 0%, #9e1c1c 100%);
+            box-shadow: 0 0 15px rgba(214, 69, 69, 0.7);
+            transition: transform 50s linear;
+        }
+        
+        .connection {
+            position: absolute;
+            background: linear-gradient(to right, rgba(214, 69, 69, 0.3), rgba(158, 28, 28, 0.3));
+            transform-origin: 0 0;
+            transition: opacity 10s ease-in-out;
+        }
+        
+        /* Sidebar styling */
+        .sidebar {
+            width: 320px;
+            background: rgba(40, 10, 10, 0.95);
+            height: 100vh;
+            position: fixed;
+            left: -320px;
+            top: 0;
+            overflow-y: auto;
+            padding: 25px;
+            z-index: 1000;
+            border-right: 1px solid rgba(214, 69, 69, 0.3);
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
+            transition: left 0.4s ease-out;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(214, 69, 69, 0.3);
+        }
+        
+        .sidebar-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #f5eaea, #e0c9c9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .close-btn {
+            background: rgba(214, 69, 69, 0.2);
+            border: none;
+            color: #e0c9c9;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(214, 69, 69, 0.4);
+            transform: rotate(90deg);
+        }
+        
+        .instructions-section {
+            margin-bottom: 30px;
+        }
+        
+        .instructions-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #e0c9c9;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(214, 69, 69, 0.3);
+        }
+        
+        .instructions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .instruction-item {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            background: rgba(90, 25, 25, 0.4);
+            padding: 18px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .instruction-item:hover {
+            background: rgba(110, 35, 35, 0.6);
+            transform: translateX(5px);
+        }
+        
+        .instruction-item i {
+            color: #d64545;
+            font-size: 1.4rem;
+            margin-top: 3px;
+        }
+        
+        .instruction-item div {
+            flex: 1;
+        }
+        
+        .instruction-item div strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: #f5eaea;
+        }
+        
+        .instruction-item div p {
+            font-size: 1rem;
+            color: #e0c9c9;
+            line-height: 1.6;
+        }
+        
+        /* Main content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Header with logo */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 0 0 40px;
+            padding: 0 20px;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #d64545 0%, #9e1c1c 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(158, 28, 28, 0.5);
+        }
+        
+        .logo-icon i {
+            font-size: 32px;
+            color: #fff;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo-text h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #f5eaea, #e0c9c9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo-text p {
+            font-size: 1rem;
+            color: #e0c9c9;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: -5px;
+            text-align: center;
+        }
+        
+        /* Card styling */
+        .card {
+            background: rgba(60, 15, 15, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(214, 69, 69, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Form styling */
+        .form-container {
+            text-align: center;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .form-container h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #f5eaea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .file-input-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .file-input-container input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: rgba(90, 25, 25, 0.6);
+            border: 2px dashed #d64545;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input-label:hover {
+            background: rgba(110, 35, 35, 0.7);
+            border-color: #e57d7d;
+        }
+        
+        .file-input-label i {
+            font-size: 4rem;
+            color: #d64545;
+            margin-bottom: 15px;
+        }
+        
+        .file-input-label p {
+            font-size: 1.2rem;
+            color: #e0c9c9;
+            margin-bottom: 5px;
+        }
+        
+        .file-input-label span {
+            font-size: 0.9rem;
+            color: #e0c9c9;
+        }
+        
+        /* Preview container */
+        .preview-container {
+            margin: 25px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .preview-container.active {
+            display: flex;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .preview-title {
+            font-size: 1.2rem;
+            color: #e0c9c9;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            border: 2px solid rgba(214, 69, 69, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .submit-btn {
+            padding: 15px 45px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #d64545 0%, #9e1c1c 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(158, 28, 28, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #e05757 0%, #b12121 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(158, 28, 28, 0.6);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+            }
+        
+        .submit-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Instruction button at bottom left */
+        .instructions-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            padding: 15px 30px;
+            background: rgba(60, 15, 15, 0.9);
+            border: 1px solid rgba(214, 69, 69, 0.5);
+            color: #e0c9c9;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .instructions-btn:hover {
+            background: rgba(90, 25, 25, 0.95);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Result styling */
+        .result-box {
+            width: 100%;
+            padding: 30px;
+            background: rgba(60, 15, 15, 0.9);
+            border-radius: 20px;
+            border: 1px solid rgba(214, 69, 69, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-box.active {
+            display: block;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .result-header h3 {
+            font-size: 1.8rem;
+            color: #f5eaea;
+        }
+        
+        .result-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        
+        .prediction {
+            font-size: 1.8rem;
+            font-weight: 700;
+            padding: 15px 40px;
+            border-radius: 50px;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .detection-image {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 15px;
+            border: 2px solid rgba(214, 69, 69, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .result-details {
+            width: 100%;
+            background: rgba(90, 25, 25, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-details h4 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-details p {
+            line-height: 1.6;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #e0c9c9;
+            font-size: 0.9rem;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        /* Overlay for sidebar */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .logo-text h1 {
+                font-size: 2.3rem;
+                line-height: 1.2;
+            }
+            
+            .logo-text p {
+                font-size: 0.85rem;
+                letter-spacing: 2px;
+            }
+            
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .logo-icon i {
+                font-size: 28px;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+            
+            .form-container h2 {
+                font-size: 1.7rem;
+                text-align: center;
+            }
+            
+            .submit-btn {
+                padding: 12px 35px;
+                font-size: 1.1rem;
+            }
+            
+            .prediction {
+                font-size: 1.5rem;
+                padding: 12px 30px;
+            }
+            
+            .sidebar {
+                width: 280px;
+            }
+            
+            /* Enhanced instruction button for tablets */
+            .instructions-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+                bottom: 20px;
+                left: 20px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            /* Mobile-first adjustments for title */
+            .logo-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .logo-text h1 {
+                font-size: 2rem;
+            }
+            
+            .logo-text p {
+                letter-spacing: 1px;
+            }
+            
+            .header {
+                margin-bottom: 25px;
+            }
+            
+            /* Instruction button for mobile */
+            .instructions-btn {
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90%;
+                max-width: 300px;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* Further mobile optimizations */
+            .logo-text h1 {
+                font-size: 1.8rem;
+            }
+            
+            .logo-icon {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .card {
+                padding: 20px 15px;
+            }
+            
+            .file-input-label {
+                padding: 30px 15px;
+            }
+            
+            .file-input-label i {
+                font-size: 3rem;
+            }
+            
+            .file-input-label p {
+                font-size: 1rem;
+            }
+            
+            .result-header h3 {
+                font-size: 1.5rem;
+            }
+            
+            .prediction {
+                font-size: 1.3rem;
+                padding: 10px 25px;
+            }
+            
+            .sidebar {
+                width: 260px;
+                padding: 20px 15px;
+            }
+            
+            /* Mobile-friendly instruction button */
+            .instructions-btn {
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            bottom: 15px;
+        }
+        
+        .instructions-btn i {
+            font-size: 0.95rem;
+        }
+        
+        /* Adjust sidebar title */
+        .sidebar-title {
+            font-size: 1.5rem;
+        }
+        
+        .instructions-section h3 {
+            font-size: 1.2rem;
+        }
+        
+        .instruction-item {
+            padding: 14px;
+        }
+        
+        .instruction-item div strong {
+            font-size: 1rem;
+        }
+        
+        .instruction-item div p {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+</head>
+<body>
+    <!-- Overlay for sidebar -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Sidebar with instructions -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Instructions</div>
+            <button class="close-btn" id="closeBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="instructions-section">
+            <h3><i class="fas fa-upload"></i> Upload Guidelines</h3>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-file-image"></i>
+                    <div>
+                        <strong>Image Quality</strong>
+                        <p>Use high-quality MRI scans in JPG or PNG format for best results.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <div>
+                        <strong>Proper Lighting</strong>
+                        <p>Ensure scans have good contrast with minimal artifacts.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-crop-alt"></i>
+                    <div>
+                        <strong>Full Scan</strong>
+                        <p>Include the entire brain region in the image.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions-section">
+            <h3><i class="fas fa-brain"></i> Analysis Process</h3>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-microchip"></i>
+                    <div>
+                        <strong>AI Technology</strong>
+                        <p>Uses advanced YOLOv8 neural networks trained on thousands of scans.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <strong>Processing Time</strong>
+                        <p>Analysis typically takes 5-10 seconds depending on image complexity.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-diagnoses"></i>
+                    <div>
+                        <strong>Result Interpretation</strong>
+                        <p>Red highlights indicate potential tumor regions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions-section">
+            <h3><i class="fas fa-user-md"></i> Medical Disclaimer</h3>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong>Professional Consultation</strong>
+                        <p>This tool assists diagnosis but doesn't replace medical expertise.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-stethoscope"></i>
+                    <div>
+                        <strong>Clinical Validation</strong>
+                        <p>Always consult a qualified radiologist for final diagnosis.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <strong>Data Privacy</strong>
+                        <p>Your medical images are processed securely and not stored.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions-section">
+            <h3><i class="fas fa-cogs"></i> System Requirements</h3>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-desktop"></i>
+                    <div>
+                        <strong>Browser Compatibility</strong>
+                        <p>Works best on Chrome, Firefox, or Edge browsers.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-wifi"></i>
+                    <div>
+                        <strong>Internet Connection</strong>
+                        <p>Requires stable internet for processing.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <div>
+                        <strong>Mobile Support</strong>
+                        <p>Fully responsive for tablets and smartphones.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main content area -->
+    <div class="main-content">
+        <!-- Animated neural network background -->
+        <div class="neural-network" id="neuralNetwork"></div>
+        
+        <!-- Instruction button at bottom left -->
+        <button class="instructions-btn" id="instructionsBtn">
+            <i class="fas fa-info-circle"></i> Instructions
+        </button>
+        
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Cerebrova</h1>
+                    <p>Brain Tumour Detection</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="form-container">
+                <h2>Tumor Descriptions</h2>
+                <div class="tumor-description">
+                    <h2>Glioma</h2>
+                    <img src="https://tse3.mm.bing.net/th/id/OIP.Wc-hTHLDymB0zeVn3jX7KQHaIz?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Glioma Example" style="max-width: 300px;">
+                    <p>Gliomas are the most common type of primary brain tumor, accounting for about 30% of all brain tumors and 80% of malignant ones. They originate from glial cells, which support and protect neurons in the brain. Gliomas are classified based on the type of glial cell they arise from, such as astrocytes (astrocytomas), oligodendrocytes (oligodendrogliomas), and ependymal cells (ependymomas). The grade of the tumor indicates its aggressiveness, with Grade I being the least aggressive and Grade IV being the most aggressive (glioblastoma).</p>
+                </div>
+
+                <div class="tumor-description">
+                    <h2>Meningioma</h2>
+                    <img src="https://www0.imageselect.eu/image-stock-mri-large-frontal-meningioma-014105000-14105600.jpg" alt="Meningioma Example" style="max-width: 300px;">
+                    <p>Meningiomas are tumors that arise from the meninges, the membranes surrounding the brain and spinal cord. They are typically benign and slow-growing, accounting for about 30% of all primary brain tumors. Although often benign, their location can sometimes cause significant neurological problems by compressing the brain or spinal cord. Treatment options include observation, surgery, and radiation therapy.</p>
+                </div>
+
+                <div class="tumor-description">
+                    <h2>Pituitary Adenoma</h2>
+                    <img src="https://cdn.lecturio.com/assets/MRI-pituitary-tumor-sagittal-view.jpg" alt="Pituitary Adenoma Example" style="max-width: 300px;">
+                    <p>Pituitary adenomas are benign tumors that develop in the pituitary gland, a small endocrine gland at the base of the brain. These tumors can cause a variety of symptoms depending on whether they are hormone-secreting or non-hormone-secreting. Hormone-secreting adenomas can lead to overproduction of hormones such as prolactin, growth hormone, or ACTH, leading to conditions like hyperprolactinemia, acromegaly, or Cushing's disease. Treatment options include medication, surgery, and radiation therapy.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Cerebrova Medical AI System | For professional use only | v3.1.0</p>
+            <p style="margin-top: 10px;">&copy; 2025 Cerebrova Diagnostics. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

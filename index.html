@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerebrova - Brain Tumour Detection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <!-- Overlay for sidebar -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Sidebar with instructions -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Instructions</div>
+            <button class="close-btn" id="closeBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="instructions-section">
+            <h3><i class="fas fa-upload"></i> Upload Guidelines</h3>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-file-image"></i>
+                    <div>
+                        <strong>Image Quality</strong>
+                        <p>Use high-quality MRI scans in JPG or PNG format for best results.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <div>
+                        <strong>Proper Lighting</strong>
+                        <p>Ensure scans have good contrast with minimal artifacts.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-crop-alt"></i>
+                    <div>
+                        <strong>Full Scan</strong>
+                        <p>Include the entire brain region in the image.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions-section">
+            <h3><i class="fas fa-brain"></i> Analysis Process</h3>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-microchip"></i>
+                    <div>
+                        <strong>AI Technology</strong>
+                        <p>Uses advanced YOLOv8 neural networks trained on thousands of scans.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <strong>Processing Time</strong>
+                        <p>Analysis typically takes 5-10 seconds depending on image complexity.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-diagnoses"></i>
+                    <div>
+                        <strong>Result Interpretation</strong>
+                        <p>Red highlights indicate potential tumor regions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions-section">
+            <h3><i class="fas fa-user-md"></i> Medical Disclaimer</h3>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong>Professional Consultation</strong>
+                        <p>This tool assists diagnosis but doesn't replace medical expertise.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-stethoscope"></i>
+                    <div>
+                        <strong>Clinical Validation</strong>
+                        <p>Always consult a qualified radiologist for final diagnosis.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <strong>Data Privacy</strong>
+                        <p>Your medical images are processed securely and not stored.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions-section">
+            <h3><i class="fas fa-cogs"></i> System Requirements</h3>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-desktop"></i>
+                    <div>
+                        <strong>Browser Compatibility</strong>
+                        <p>Works best on Chrome, Firefox, or Edge browsers.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-wifi"></i>
+                    <div>
+                        <strong>Internet Connection</strong>
+                        <p>Requires stable internet for processing.</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <div>
+                        <strong>Mobile Support</strong>
+                        <p>Fully responsive for tablets and smartphones.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main content area -->
+    <div class="main-content">
+        <!-- Animated neural network background -->
+        <div class="neural-network" id="neuralNetwork"></div>
+        
+        <!-- Instruction button at bottom left -->
+        <button class="instructions-btn" id="instructionsBtn">
+            <i class="fas fa-info-circle"></i> Instructions
+        </button>
+        
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Cerebrova</h1>
+                    <p>Brain Tumour Detection</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="form-container">
+                <h2><i class="fas fa-upload"></i> Upload MRI Scan</h2>
+                
+                <form method="POST" action="/predict" enctype="multipart/form-data" id="uploadForm">
+                    <div class="file-input-container">
+                        <input type="file" name="image" accept=".jpg,.jpeg,.png" id="fileInput" required>
+                        <label for="fileInput" class="file-input-label">
+                            <i class="fas fa-file-medical"></i>
+                            <p>Click to upload MRI image</p>
+                            <span>Supports JPG, JPEG or PNG formats</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Preview container -->
+                    <div class="preview-container" id="previewContainer">
+                        <div class="preview-title">Image Preview</div>
+                        <img id="imagePreview" class="preview-image" src="" alt="MRI Preview">
+                    </div>
+                    
+                    <input type="submit" value="Analyze Scan" class="submit-btn" id="submitBtn" disabled>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Result container -->
+        <div class="result-box" id="resultBox">
+            <div class="result-header">
+                <h3><i class="fas fa-diagnoses"></i> Analysis Result</h3>
+            </div>
+            
+            <div class="result-content">
+                <div class="prediction" id="predictionResult">TUMOR DETECTION ANALYSIS</div>
+                <img id="detectionImage" class="detection-image" src="" alt="Detection Result">
+                
+<div class="result-details">
+    <h4><i class="fas fa-clipboard-list"></i> Detection Result</h4>
+    <p id="detectionResultText">Processing detection results...</p>
+    <p>Confidence: <span id="confidenceValue"></span></p>
+   {% if result_path and status and confidence and tumor_class and extracted_text %}
+<a style="margin-top: 20px;" href="{{ url_for('download_report', result=result_path, status=status, confidence=confidence, tumor_class=tumor_class) }}" class="btn btn-primary"><i class="fas fa-download"></i> Download Report</a>
+{% endif %}
+
+</div>
+            <h3 style="margin-top: 20px; "><a style="color: white" href="/tumor_descriptions">Learn more about tumor types</a></h3>
+
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Cerebrova Medical AI System | For professional use only | v3.1.0</p>
+            <p style="margin-top: 10px;">&copy; 2025 Cerebrova Diagnostics. All rights reserved.</p>
+        </div>
+    </div>
+    <script src="static/script.js"></script>
+</body>
+</html>
